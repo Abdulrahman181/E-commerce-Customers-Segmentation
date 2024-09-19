@@ -98,4 +98,4 @@ To run the project:
 - abdulrahmannassar202@gmail.com
 
 # 📌 Project link
-## -https://github.com/Abdulrahman181/E-commerce-Customers-Segmentation
+- https://github.com/Abdulrahman181/E-commerce-Customers-Segmentation
