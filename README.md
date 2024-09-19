@@ -87,11 +87,7 @@ To run the project:
 
 ├── notebooks/                   # Jupyter Notebooks for data exploration and model development
 
-├── dashboard/                   # Dashboard code and screenshots
-
-├── README.md                    # Project overview and instructions
-
-└── requirements.txt             # List of dependencies for the project
+└── README.md                    # Project overview and instructions
 
 # 🔗 References
   Dataset description and structure as per the project documentation.
