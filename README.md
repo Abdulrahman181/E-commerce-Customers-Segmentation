@@ -93,6 +93,8 @@ To run the project:
   Dataset description and structure as per the project documentation.
 
 # 💻 Authors
-##- Abdul Rahman Ahmed Mahmoud Hassan
-
+##- Abdul Rahman Ahmed 
 ##- abdulrahmannassar202@gmail.com
+
+#📌 Project link:
+##-https://github.com/Abdulrahman181/E-commerce-Customers-Segmentation
