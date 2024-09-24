@@ -1,6 +1,6 @@
 ### E-commerce Customers Segmentation
 
-# 📌 Project Overview
+# 🎯 Project Overview
  - This project focuses on segmenting customers for an e-commerce platform based on their transactional behavior using unsupervised machine learning techniques. The goal is 
    to identify different customer segments to optimize coupon offerings, thereby enhancing customer loyalty and satisfaction.
    The project is divided into two main tasks:
