@@ -56,7 +56,7 @@
   - Model Evaluation: Use evaluation metrics such as the Silhouette score and Inertia (for K-Means).
   - Segment Analysis: Analyze each segment to identify which groups should receive coupons to maximize loyalty.
 
-# 🔍 Evaluation Metrics
+# 📈 Evaluation Metrics
   - Silhouette Score: Measures how similar an object is to its own cluster compared to other clusters.
   - Inertia: Sum of squared distances between each point and its assigned cluster’s centroid (used for K-Means).
 
