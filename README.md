@@ -9,7 +9,7 @@
     - Building a Dashboard for Stakeholders to provide insights into customer demographics, coupon usage, top-performing branches/cities, and customer retention.
     - Customer Segmentation Using Unsupervised Learning to identify customer groups sharing similar behaviors and proposing strategies for increasing customer satisfaction.
   
-# 📁 Dataset Overview
+# 📊 Dataset Overview
    - The dataset consists of five interrelated tables that provide detailed information about customers, transactions, branches, and merchants.
      - Customers Table:
        - customer_id: Unique ID for each customer.
