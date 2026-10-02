@@ -1,0 +1,8 @@
+# Local environments and notebook state
+.venv/
+venv/
+__pycache__/
+.ipynb_checkpoints/
+
+# The source workbook is intentionally not part of this repository.
+E-commerce_data.xlsx
