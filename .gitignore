@@ -1,0 +1,12 @@
+# Local environments and notebook state
+.venv/
+venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# The source workbook is intentionally not part of this repository.
+E-commerce_data.xlsx
+artifacts/
+*.joblib

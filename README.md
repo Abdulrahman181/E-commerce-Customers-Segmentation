@@ -1,97 +1,73 @@
-## E-commerce Customers Segmentation
+# E-commerce Customers Segmentation
 
-# 🎯 Project Overview
-  - This project focuses on segmenting customers for an e-commerce platform based on their transactional behavior using unsupervised machine learning techniques.
-  -  The goal is 
-     - to identify different customer segments to optimize coupon offerings, thereby enhancing customer loyalty and satisfaction.
-     
-  - The project is divided into two main tasks:
-    - Building a Dashboard for Stakeholders to provide insights into customer demographics, coupon usage, top-performing branches/cities, and customer retention.
-    - Customer Segmentation Using Unsupervised Learning to identify customer groups sharing similar behaviors and proposing strategies for increasing customer satisfaction.
-  
-# 📊 Dataset Overview
-   - The dataset consists of five interrelated tables that provide detailed information about customers, transactions, branches, and merchants.
-     - Customers Table:
-       - customer_id: Unique ID for each customer.
-       - join_date: The date the customer joined.
-       - city_id: Represents the customer’s city.
-       - gender_id: Represents the customer’s gender.
-     - Genders Table:
-       - gender_id: Unique ID for each gender.
-       - gender_name: Name of the gender (e.g., male, female).
-     - Cities Table:
-       - city_id: Unique ID for each city.
-       - city_name: Name of the city.
-     - Transactions Table:
-       - transaction_id: Unique ID for each transaction.
-       - customer_id: ID of the customer who made the transaction.
-       - transaction_date: Date the transaction occurred.
-       - transaction_status: Status of the coupon (e.g., claimed, burnt).
-       - coupon_name: Name of the coupon used.
-       - burn_date: Date the coupon was burnt.
-       - branch_id: ID of the branch where the coupon was used.
-     - Branches Table:
-       - branch_id: Unique ID for each branch.
-       - merchant_id: ID of the merchant that owns the branch.
-     - Merchants Table:
-       - merchant_id: Unique ID for each merchant.
-       - merchant_name: Name of the merchant.
-   
-# 🛠️ Project Requirements
-  - Part 1: Dashboard for Stakeholders
-    - The dashboard aims to present key insights from the dataset, targeted at stakeholders like business managers and marketing teams. The dashboard includes the following 
-     visualizations:
-    - Customer Demographics: Distribution by gender and city.
-    - Coupon Usage: Insights into the status of coupons over time (claimed vs burnt).
-    - Top-performing Cities/Branches: Cities/branches with the highest coupon burns.
-    - Customer Retention and Loyalty: Coupon usage trends and customer retention patterns.
-    - Recommended visualizations include pie charts, time-series line charts, bar charts, heatmaps, and histograms.
+This repository contains an exploratory Jupyter notebook and a small, reproducible K-Means workflow for customer-level exploratory segmentation. It does not contain a stakeholder dashboard, deployed service, or validated business segmentation.
 
-- Part 2: Customer Segmentation Using Unsupervised Learning
-   - The second part of the project focuses on developing an unsupervised machine learning model to segment customers based on transactional behavior.
+## Dataset and privacy
 
-- Key steps:
-  - Feature Selection: Utilize customer demographics (e.g., gender, city) and transactional features (e.g., coupon usage, status).
-  - Model Development: Train models like K-Means, DBSCAN, or hierarchical clustering, exploring different numbers of clusters.
-  - Model Evaluation: Use evaluation metrics such as the Silhouette score and Inertia (for K-Means).
-  - Segment Analysis: Analyze each segment to identify which groups should receive coupons to maximize loyalty.
+The analysis expects an authorized Excel workbook with worksheets named `transactions`, `customers`, `genders`, `cities`, `branches`, and `merchants`. The tracked `E-commerce_data.xlsx.pdf` is a PDF export, not an Excel workbook. The required workbook is **not included**, so neither the notebook nor the model workflow can be run end-to-end from a fresh clone. Do not substitute the PDF or an invented dataset.
 
-# 📈 Evaluation Metrics
-  - Silhouette Score: Measures how similar an object is to its own cluster compared to other clusters.
-  - Inertia: Sum of squared distances between each point and its assigned cluster’s centroid (used for K-Means).
+Use only a workbook you are authorized to access. Keep it local: the expected workbook, generated artifacts, and notebook checkpoint/output files are ignored by Git. The modelling workflow writes only aggregate JSON metadata/metrics and a fitted model, never customer-level assignments or identifiers. Model parameters and aggregate statistics can still be sensitive; treat the entire `artifacts/` directory as private and do not commit or share it. Only load model files that you created or otherwise trust (joblib files can execute code when loaded).
 
-# 💡 Key Findings
-  - Segments of customers with high coupon usage frequency were identified, suggesting they should be targeted with more loyalty incentives.
-  - Geographic and gender-specific preferences were discovered, helping tailor marketing strategies for different demographics.
+## Setup
 
-# 🚀 Getting Started
-  - To run the project:
-    - Clone the repository from GitHub.
-    - Install the necessary dependencies listed in requirements.txt.
-    - Open the Jupyter Notebook to explore the data and train the models.
+Python 3.11 is used in CI. From the repository root:
 
-# 🧰 Tools and Libraries
-  - Python: Core programming language used.
-  - Pandas: For data manipulation and analysis.
-  - Matplotlib/Seaborn: For data visualization.
-  - Scikit-learn: For machine learning algorithms.
-  - Plotly/Dash: For creating interactive dashboards.
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
 
-# 📁 Repository Structure
+To run the exploratory notebook, set the input path before launching Jupyter:
 
-├── data                        
+```bash
+export ECOMMERCE_DATA_PATH="/path/to/your/E-commerce_data.xlsx"
+jupyter lab E-commerce-Customers.ipynb
+```
 
-├── notebooks                  
+The notebook is for local descriptive exploration. It does not save a row-level export, and saved outputs are cleared in the committed version. Avoid saving or committing notebook outputs that may contain confidential source data.
 
-└── README.md                    
+## Reproducible customer-level clustering
 
-# 🔗 References
-  - Dataset description and structure as per the project documentation.
+The Python workflow reads the six-sheet workbook, validates the required transaction/customer columns and join cardinality, rejects invalid chronology, and derives one row per customer from `coupon_used_rate` and `mean_days_since_join`. These features are per-customer means of transaction-level coupon-use indicators and days since joining. The workflow deliberately excludes row-level IDs from model features and output JSON.
 
-# 💻 Authors
-  - Abdul Rahman Ahmed 
+Run it with the environment variable above or an explicit path:
 
-  - abdulrahmannassar202@gmail.com
+```bash
+python -m customer_segmentation \
+  --workbook "$ECOMMERCE_DATA_PATH" \
+  --output-dir artifacts \
+  --min-clusters 2 \
+  --max-clusters 5 \
+  --random-state 42
+```
 
-# 📌 Project link
-  - https://github.com/Abdulrahman181/E-commerce-Customers-Segmentation
+A deterministic customer-disjoint train/validation/test split is used. The scaler and candidate K-Means models are fit on train only; the candidate cluster count is selected using validation silhouette; the selected pipeline is refit on train plus validation; and test is held out from selection and fit. The test silhouette is reported once when its assigned labels permit calculation. Silhouette is only a geometric diagnostic for unsupervised clusters—not predictive accuracy, external validation, proof of segment stability, or evidence of business value. No segment count or result is asserted in advance. Very small or poorly separated datasets may not yield a valid score; the workflow then reports a clear error instead of inventing a result.
+
+Outputs are written to the ignored `artifacts/` directory:
+
+- `customer_segmentation.joblib` — fitted preprocessing and K-Means model
+- `feature_schema.json` — feature definitions, split/model metadata, and library version
+- `metrics.json` — selected candidate validation score and held-out descriptive metric
+
+The dependency ranges in `requirements.txt` are compatibility bounds, not a fully resolved lock file. `requirements-dev.txt` adds test/lint tools. `openpyxl` reads Excel workbooks.
+
+## Checks
+
+```bash
+python -m pip install -r requirements-dev.txt
+python -m pip check
+ruff check .
+python -m pytest -q
+```
+
+Tests use synthetic fixtures only to verify code behavior; they are not dataset results or external validation.
+
+## Repository contents
+
+- `E-commerce-Customers.ipynb` — exploratory notebook; modelling is delegated to the leakage-aware CLI workflow above
+- `customer_segmentation/` — validated loader, customer feature aggregation, split/evaluation, and artifact writer
+- `tests/` — synthetic regression tests
+- `.github/workflows/ci.yml` — lint, test, and dependency-consistency checks
+- `E-commerce_data.xlsx.pdf` — PDF export, not a machine-readable workbook for this analysis
