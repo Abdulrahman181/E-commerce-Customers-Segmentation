@@ -48,3 +48,41 @@ Customer-level aggregation prevents repeated transaction rows for the same custo
 ## Reproducibility caveat
 
 Install `requirements.txt`, supply the original workbook through `ECOMMERCE_DATA_FILE` or the documented path, run `python scripts/validate_notebook.py`, and then execute the notebook. Any metrics or cluster interpretation must be generated from that supplied workbook; this review intentionally reports no fabricated numerical result.
+
+## Second Senior Review
+
+Reviewed the post-`83ec80c` repository again on 2026-10-15, including all tracked files, the full notebook JSON/source state, Python/config/test/documentation files, Git history and diff. The tracked PDF remains a reference export rather than an executable workbook; no real-data metrics were generated or claimed.
+
+### Findings fixed in this review
+
+1. **Documented `.xls` support was incomplete.** The notebook accepted `.xls` paths, but `xlrd` was not declared. Added `xlrd>=2.0,<3` to `requirements.txt`.
+2. **Workbook validation was too permissive.** Added checks for duplicate column names, missing/null primary keys, duplicate transaction/dimension keys, invalid non-null dates, transactions before customer join dates, and unmatched foreign keys. Transaction columns are projected before joins to avoid accidental name collisions.
+3. **Environment-variable typos could silently select another workbook.** When `ECOMMERCE_DATA_FILE` is set, the notebook now fails directly if the path is missing or has an unsupported suffix instead of falling back to an unrelated candidate.
+4. **Silhouette evaluation could still raise on degenerate labels.** Added a shared precondition-checked `safe_silhouette` helper and used it for K-Means, DBSCAN non-noise observations, and agglomerative clustering; undefined scores are reported as such.
+5. **Monthly aggregation relied on index alignment that was difficult to audit.** Rewrote it to derive an explicit month column before grouping.
+6. **Static validation was not reusable and did not validate markdown/raw cell paths or malformed cell structures.** Refactored `scripts/validate_notebook.py` to expose `validate_notebook`, validate all cell sources/types, and retain AST/Ruff, output, execution-count, and portability checks.
+7. **Regression coverage was absent.** Added `tests/test_repository.py` with notebook-state/dependency checks and a synthetic six-table workbook smoke test that exercises loading, joins, customer aggregation, and all clustering branches without claiming real-data performance.
+
+### Validation performed in the second review
+
+- `python scripts/validate_notebook.py`: passed; 9 code cells parsed, no saved outputs, no machine-specific paths.
+- `python -m unittest discover -s tests -v`: passed, 3 tests; the runtime smoke test completed against an ephemeral synthetic workbook only.
+- `python -m compileall -q scripts tests`: passed.
+- `ruff check scripts tests`: passed.
+- Notebook JSON state: 15 cells, 0 saved outputs, all code-cell execution counts `null`.
+- No secrets, hard-coded user paths, generated outputs, or untracked data files were introduced. No push was performed.
+
+### Remaining risks
+
+- The original Excel workbook is still unavailable, so real schema/content validation and real notebook execution remain unverified here.
+- The workflow is intentionally descriptive unsupervised clustering; it has no predictive holdout, persisted preprocessing/model artifact, drift monitoring, or scoring API.
+- Customers without transactions are excluded from transaction-derived features and need an explicit business rule if they must be segmented.
+- Dependency ranges are compatible bounds rather than a lockfile; production reproducibility still requires pinning and recording the resolved environment.
+
+### Second-review changed files
+
+- `E-commerce-Customers.ipynb`
+- `README.md`
+- `requirements.txt`
+- `scripts/validate_notebook.py`
+- `tests/test_repository.py`
